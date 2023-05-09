@@ -189,6 +189,11 @@ public class PartitionBasedMaterializedViewRefreshProcessor extends BaseTaskRunP
                     extraMessage.setBasePartitionsToRefreshMap(sourceTablePartitions);
                 }
 
+                if (mvContext.getCtx().getSessionVariable().isEnableResourceGroup()) {
+                    String rg = materializedView.getProperties().getOrDefault(SessionVariable.RESOURCE_GROUP,
+                            ResourceGroup.DEFAULT_MV_RESOURCE_GROUP_NAME);
+                    mvContext.getCtx().getSessionVariable().setResourceGroup(rg);
+                }
                 // create ExecPlan
                 insertStmt = generateInsertStmt(partitionsToRefresh, sourceTablePartitions);
                 execPlan = generateRefreshPlan(mvContext.getCtx(), insertStmt);
