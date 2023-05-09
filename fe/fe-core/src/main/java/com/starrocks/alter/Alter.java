@@ -112,6 +112,7 @@ import com.starrocks.sql.ast.TruncateTableStmt;
 import com.starrocks.sql.optimizer.Utils;
 import com.starrocks.thrift.TTabletMetaType;
 import com.starrocks.thrift.TTabletType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -320,6 +321,11 @@ public class Alter {
             partitionRefreshNumber = PropertyAnalyzer.analyzePartitionRefreshNumber(properties);
             properties.remove(PropertyAnalyzer.PROPERTIES_PARTITION_REFRESH_NUMBER);
         }
+        String resourceGroup = null;
+        if (properties.containsKey(PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP)) {
+            resourceGroup = PropertyAnalyzer.analyzeResourceGroup(properties);
+            properties.remove(PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP);
+        }
         int autoRefreshPartitionsLimit = INVALID;
         if (properties.containsKey(PropertyAnalyzer.PROPERTIES_AUTO_REFRESH_PARTITIONS_LIMIT)) {
             autoRefreshPartitionsLimit = PropertyAnalyzer.analyzeAutoRefreshPartitionsLimit(properties, materializedView);
@@ -363,6 +369,11 @@ public class Alter {
                 materializedView.getTableProperty().getAutoRefreshPartitionsLimit() != autoRefreshPartitionsLimit) {
             curProp.put(PropertyAnalyzer.PROPERTIES_AUTO_REFRESH_PARTITIONS_LIMIT, String.valueOf(autoRefreshPartitionsLimit));
             materializedView.getTableProperty().setAutoRefreshPartitionsLimit(autoRefreshPartitionsLimit);
+            isChanged = true;
+        } else if (propClone.containsKey(PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP) &&
+                !StringUtils.equals(materializedView.getTableProperty().getResourceGroup(), resourceGroup)) {
+            curProp.put(PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP, resourceGroup);
+            materializedView.getTableProperty().setResourceGroup(resourceGroup);
             isChanged = true;
         }
         if (propClone.containsKey(PropertyAnalyzer.PROPERTIES_EXCLUDED_TRIGGER_TABLES)) {

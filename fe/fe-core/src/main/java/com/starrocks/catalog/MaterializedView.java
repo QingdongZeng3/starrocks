@@ -834,6 +834,12 @@ public class MaterializedView extends OlapTable implements GsonPostProcessable {
             sb.append(properties.get(PropertyAnalyzer.PROPERTIES_FORCE_EXTERNAL_TABLE_QUERY_REWRITE)).append("\"");
         }
 
+        if (properties.containsKey(PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP)) {
+            sb.append(StatsConstants.TABLE_PROPERTY_SEPARATOR).append(
+                    PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP).append("\" = \"");
+            sb.append(properties.get(PropertyAnalyzer.PROPERTIES_RESOURCE_GROUP)).append("\"");
+        }
+
         appendUniqueProperties(sb);
 
         sb.append("\n)");
